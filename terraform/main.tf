@@ -11,9 +11,23 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Create a default VPC if one doesn't exist
+resource "aws_default_vpc" "default" {
+  tags = {
+    Name = "Default VPC"
+  }
+}
+
+# Create a new key pair for the EC2 instance
+resource "aws_key_pair" "deployer_key" {
+  key_name   = "deployer_key"
+  public_key = file(var.public_key_path)
+}
+
 resource "aws_security_group" "app_sg" {
   name        = "flask-express-sg"
   description = "Allow Flask and Express traffic"
+  vpc_id      = aws_default_vpc.default.id
 
   ingress {
     from_port   = 22
@@ -42,11 +56,6 @@ resource "aws_security_group" "app_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_key_pair" "deployer_key" {
-  key_name   = "deployer_key"
-  public_key = file(var.public_key_path)
 }
 
 resource "aws_instance" "flask_express_instance" {
