@@ -60,7 +60,7 @@ resource "aws_security_group" "app_sg" {
 
 resource "aws_instance" "flask_express_instance" {
   ami           = var.ami_id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = aws_key_pair.deployer_key.key_name
   vpc_security_group_ids = [aws_security_group.app_sg.id]
   user_data = file("user-data.sh")
